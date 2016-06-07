@@ -1,0 +1,55 @@
+   #ifdef MSW
+
+   /******************************************************
+
+	this is for spooling through a file
+	with the return key on a Windows platform
+
+	if the CR goes to stdin then LF is generated
+	and the output is double spaced
+
+	other platforms use scan up line delete
+	which isn't available on MSW
+
+	it would also be possible to drop the LF
+	in the data. Then the next command would
+	necessarily be input on the right of the line
+	which would be confusing, or mixed up with
+	the data at the start of the line, which...
+
+	this solution is working with the same
+	clean appearance as on Unix / Linux and DOS
+
+
+   ******************************************************/
+
+
+   if (_isatty(0))
+   {
+      for (;;)
+      {
+         if (_kbhit())
+         {
+            symbol = _getch();
+            *p++ = symbol;
+            x--;
+            y++;
+            putchar(symbol);
+            if (symbol == '\r')
+            {
+               /*****************************************
+			clear the leading 8 columns
+			of the "terminal" line
+			and go to column 1
+               *****************************************/
+
+               *p = 0;
+               printf("\t\r");
+               return q;
+            }
+            break; 
+         }
+         else _sleep(20);
+      }
+   }
+   #endif

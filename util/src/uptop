@@ -1,0 +1,56 @@
+
+/******************************************************************
+
+		Copyright Tim Cox, 2015
+
+		TimMilesCox@gmx.ch       
+
+	This source code data.c is a line-oriented 
+	text editor used in POSIX bash shells and in
+	DOS and Windows command prompt
+
+	data is free software licensed
+	with the GNU General Public Licence Version 3
+
+	The same licence encompasses all accompanying software
+	and documentation
+
+	The full licence text is included with these materials
+
+        See also the licensing notice at the foot of this document
+
+*******************************************************************/
+
+/******************************************************************
+
+	data takes commands from the input line
+	and does no in-page or in-line editing
+
+	text is updated with single or multiline transform commands
+	and with line insertion, replacement and deletion commands
+
+	data is suitable for inclusion in scripts and a list of
+	commands may be piped
+
+	to build data for
+
+	unix / POSIX / linux
+	____________________
+
+	gcc -m32 -funsigned-char -o [PATH]/data data.c
+
+
+	Windows
+	_______
+
+	cl /J /DMSW /Fe[PATH\]data data.c
+
+
+	DOS
+	___
+
+	bcc -K -DDOS -e[PATH\]data.exe data.c
+
+******************************************************************/
+
+
