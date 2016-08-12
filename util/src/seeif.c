@@ -77,6 +77,7 @@
 #ifdef DOS
 #include <fcntl.h>
 #include "../win32.src/dirent.h"
+typedef long off_t;
 #else
 #include <fcntl.h>
 #include "dirent.h"
@@ -474,7 +475,7 @@ int main(int argc, char *argv[])
       printf("	seeif [-avVWRs] path path\n\n");
 
       printf("All  options are single letter and can be in all\n"
-             "positions of the line, all at one if desired\n\n");
+             "positions of the line, all at once if desired\n\n");
 
       printf("paths are either two files or two directories\n\n"
 
