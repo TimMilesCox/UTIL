@@ -467,7 +467,32 @@ int main(int argc, char *argv[])
       p2 = pend(p2, argument[1]);
       tree_compare();
    }
-   else printf("arguments must be two files or two directories\n");
+   else
+   {
+      printf("\narguments must be two files or two directories\n\n");
+
+      printf("	seeif [-avVWRs] path path\n\n");
+
+      printf("All  options are single letter and can be in all\n"
+             "positions of the line, all at one if desired\n\n");
+
+      printf("paths are either two files or two directories\n\n"
+
+              "        -a	text, ignore stuff like CR\n\n"
+
+              "        -v      display differences\n\n"
+
+              "        -V      keep comparing after the first difference\n"
+              "                try to resync text files\n\n"
+
+              "        -W      treat whitespace fields as one space\n"
+              "                ignore blank lines\n\n"
+
+              "        -R      recurse subdirectories\n\n"
+
+              "        -s      say if files are equal\n\n");
+        
+   }
 
    return 0;
 }
