@@ -88,94 +88,11 @@ static char *lread(int MAX, char *p)
    int           x = MAX, y = 0, symbol = 0;
    char         *q = p;
 
-   #ifdef MSW
-
-   /******************************************************
-
-	this is for spooling through a file
-	with the return key on a Windows platform
-
-	if the CR goes to stdin then LF is generated
-	and the output is double spaced
-
-	other platforms use scan up line delete
-	which isn't available on MSW
-
-	it would also be possible to drop the LF
-	in the data. Then the next command would
-	necessarily be input on the right of the line
-	which would be confusing, or mixed up with
-	the data at the start of the line, which...
-
-	this solution is working with the same
-	clean appearance as on Unix / Linux and DOS
-
-
-   ******************************************************/
-
-      #if 1
-      printf("%p %2.2x %2.2x, ctr %x, b %p %2.2x %2.2x Fl %x %x b %x sz %x tf %p %2.2x %2.2x\n",
-              stdin->_ptr,
-              (stdin->_ptr) ? *stdin->_ptr : 0,
-              (stdin->_ptr) ? *(stdin->_ptr + 1) : 0,  
-              stdin->_cnt, stdin->_base,
-              (stdin->_base) ? *stdin->_base : 0, 
-              (stdin->_base) ? *(stdin->_base + 1) : 0,
-              stdin->_flag, stdin->_file, stdin->_charbuf,
-              stdin->_bufsiz, stdin->_tmpfname,
-              (stdin->_tmpfname) ? stdin->_tmpfname : 0,
-              (stdin->_tmpfname) ? *(stdin->_tmpfname + 1) : 0);
-      #else    
-
-   if (_isatty(0))
-   {
-      for (;;)
-      {
-         if (_kbhit())
-         {
-            symbol = _getch();
-
-            if (symbol == '\r')
-            {
-               /*****************************************
-			clear the leading 8 columns
-			of the "terminal" line
-			and go to column 1
-               *****************************************/
-
-               *p = 0;
-               printf("\t\r");
-               return q;
-            }
-
-            ungetc(symbol, stdin);
-            break; 
-         }
-         else _sleep(20);
-      }
-   }
-
-      #endif
-
-   #endif
 
    while (x--)
    {
       symbol = getchar();
 
-      #ifdef MSW
-      printf("%p %2.2x %2.2x, ctr %x, b %p %2.2x %2.2x Fl %x %x b %x sz %x tf %p %2.2x %2.2x\n",
-              stdin->_ptr,
-              (stdin->_ptr) ? *stdin->i_ptr : 0,
-              (stdin->_ptr) ? *(stdin->_ptr + 1) : 0,
-              stdin->_cnt, stdin->_base,
-              (stdin->_base) ? *stdin->_base : 0,
-              (stdin->_base) ? *(stdin->_base + 1) : 0,
-              stdin->_flag, stdin->_file, stdin->_charbuf,
-              stdin->_bufsiz, stdin->_tmpfname,
-              (stdin->_tmpfname) ? stdin->_tmpfname : 0,
-              (stdin->_tmpfname) ? *(stdin->_tmpfname + 1) : 0);
-      #endif 
 
       if (symbol ==  EOF) break;
       if (symbol ==    0) break;
@@ -1203,22 +1120,27 @@ int main(int argc, char *argv[])
 	       break;
 	    }
 
-	    if ((p) && (g)) fputs(p, g);
-	    
+            if ((p) && (g)) fputs(p, g);
 	    if (!g) g = align(cursor, f, target);
+
+            #if 0
+            if (p) fputs(p, g);
+            #endif
 	    
 	    for (;;)
 	    {
 	       p = fgets(data, LINE-1, swap);
 	       if (!p) break;
+               cursor++;
+               if (flag['p'-'a'])
+               {
+                  if (flag['n'-'a']) printf("%ld: ", cursor);
+                   printf("%s", data);
+               }
 	       fputs(p, g);
-	       cursor++;
 	    }
+
 	    fclose(swap);
-
-            if (flag['n'-'a']) printf("%ld: ", cursor);
-            printf("%s", data);
-
 	    break;
 
 	 case 'l':

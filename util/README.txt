@@ -5,10 +5,12 @@ It is important to acknowledge the contribution of
         kevlin@acm.org, kevlin@curbralan.com
 
 to seeif.exe, which is a another diff, chiefly for comparing
-Microsoft directories and files in straightforward command line
-environment
+Microsoft directories and files in Microsoft command prompt
+simplest version with no special environment
 
-seeif is als built for Linux and OSX
+seeif is also built for Linux and OSX. diff is already very
+good on any Unix platform, but seeif optionally recurses any
+depth of directories
 
 Directory operations in the Microsoft executable are
 carried out with Mr Henney's dirent subroutines
