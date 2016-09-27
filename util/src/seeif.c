@@ -129,7 +129,10 @@ static int realign(int f1, int f2,
    char			 text1[LINE],
 			 text2[LINE];
 
+   char			 text2here[LINE];
+
    int			 x,
+                         lines2_display = 1,
 			 traverse, 
 			 search = SEARCH;
 
@@ -147,12 +150,20 @@ static int realign(int f1, int f2,
 
       while (traverse--)
       {
-         line2++;
-         x = posix2textline(f2, text2, LINE-1, uflag['W'-'A'], b2);
-         if (x == 0) return -1;
+         for (;;)
+         {
+            line2++;
+            x = posix2textline(f2, text2, LINE-1, uflag['W'-'A'], b2);
 
-         if (text2[0] == '\n') continue;
-         if ((text2[1] == '\n') && (text2[0] == ' ')) continue;
+            if (x == 0) break;
+
+            if (uflag['W'-'A'] == 0) break;
+            if (text2[0] == '\n') continue;
+            if ((text2[1] == '\n') && (text2[0] == ' ')) continue;
+            break;
+         }
+
+         if (x == 0) break;
 
          x = strcmp(p, text2);
 
@@ -160,24 +171,55 @@ static int realign(int f1, int f2,
          {
             if (flag['v'-'a'])
             {
-               printf("realigned*  %s: %d: %s", left, line1, p);
-               printf("            %s: %d: %s", right, line2, text2);
+               x = posix2s_point(f2, offset2, (off_t) departure2, b2);
+               if (x < 0) printf("[*%d]\n", errno);
+               else
+               {
+                  lines2_display = position2 + 1;
+
+                  while (lines2_display < line2)
+                  {
+                     x = posix2textline(f2, text2here, LINE-1, uflag['W'-'A'], b2);
+                     printf("            %s: %d: %s", right, lines2_display, text2here);
+                     lines2_display++;
+                  }
+
+                  x = posix2textline(f2, text2here, LINE-1, uflag['W'-'A'], b2);
+               }
+
+               printf("          | %s: %d: %s", right, line2, text2);
+               printf("realigned | %s: %d: %s",  left, line1, p);
             }
 
             return 0;		/* equal lines have been found and consumed */
          }
+         #if 0
+         else if (flag['v'-'a'] & lines2_display) printf("            %s: %d: %s", right, line2, text2);
+         #endif
       }
 
-      while (search--)
+      #if 0
+      lines2_display = 0;
+      #endif
+
+      for (;;)
       {
          line1++;
          x = posix2textline(f1, text1, LINE-1, uflag['W'-'A'], b1);
-         if (x == 0) return -1;
 
+         if (x == 0) break;
+
+         if (uflag['W'-'A'] == 0) break;
          if (text1[0] == '\n') continue;
          if ((text1[1] == '\n') && (text1[0] == ' ')) continue;
          break;
       }
+
+      if (x == 0) break;
+
+      x = posix2s_point(f2, offset2, (off_t) departure2, b2);
+      if (x < 0) printf("[*%d]\n", errno);
+      line2 = position2;
 
       x = strcmp(text1, txline2);
 
@@ -185,17 +227,24 @@ static int realign(int f1, int f2,
       {
          if (flag['v'-'a'])
          {
-            printf("realigned*  %s: %d: %s", left, line1, text1);
-            printf("            %s: %d: %s", right, position2, txline2);
+            printf("          | %s: %d: %s", left, line1, text1);
+            printf("realigned | %s: %d: %s", right, position2, txline2);
          }
          
          return 0;           /* equal lines have been found and consumed */
       }
+      else if (flag['v'-'a']) printf("            %s: %d: %s", left, line1, text1);
 
-      x = posix2s_point(f2, offset2, (off_t) departure2, b2);
-      if (x < 0) printf("[*%d]\n", errno);
-      line2 = position2;
       p = text1;
+   }
+
+   traverse = SEARCH;
+
+   while (traverse--)
+   {
+      line2++;
+      x = posix2textline(f2, text2, LINE-1, uflag['W'-'A'], b2);
+      printf("            %s: %d: %s", right, line2++, text2);
    }
 
    return -1;
@@ -264,8 +313,8 @@ static int text_compare(int f1, int f2)
          status |= j;
          if (flag['v'-'a'])
          {
-            printf("difference* %s: %d: %s", left, line1, text1);
-            printf("            %s: %d: %s", right, line2, text2);
+            printf("          * %s: %d: %s", right, line2, text2);
+            printf("difference* %s: %d: %s",  left, line1, text1);
          }
 
          if (!uflag['V'-'A']) break;
@@ -371,7 +420,7 @@ static void file_compare()
    close(f1);
    close(f2);
 
-   if (status)  printf("inequality found between %s and %s\n", left, right);
+   if (status) printf("%s and %s differ\n", left, right);
 
    else if (flag['s'-'a']) printf("%s and %s are identical\n", left, right);
 }
