@@ -64,19 +64,28 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <io.h>
+#define	_FILE_OFFSET_BITS 64
+#define off_t __int64
+#define	lseek _lseeki64
 #include <string.h>
+#include <errno.h>
 #else
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#define _FILE_OFFSET_BITS 64
 #include <string.h>
+#include <errno.h>
 #endif
 
 #include "../include/argue.h"
 
 int main(int argc, char *argv[])
 {
-   long long			 cursor = 0;
+   off_t			 cursor = 0,
+				 seek_point;
+
    int				 f, x, y, symbol;
 
    char				 command[60];
@@ -100,7 +109,7 @@ int main(int argc, char *argv[])
 
    if (f < 0)
    {
-      printf("%s not read\n", argument[0]);
+      printf("%s not read code %d\n", argument[0], errno);
       return 0;
    }
 
@@ -110,7 +119,7 @@ int main(int argc, char *argv[])
 
       if (y < 0) break;
 
-      printf("%8.8llx: ", cursor);
+      printf("%16.16llx: ", cursor);
       for (x = 0; x < y; x++) printf("%2.2x", data[x]);
       while (x++ < 16) printf("  ");
 
@@ -137,10 +146,12 @@ int main(int argc, char *argv[])
          continue;
       }
 
-      x = read(0, command, 60);
+      x = read(0, command, 60 - 1);
 
       if (x > 0)
       {
+         command[x] = 0;
+
          if (command[0] == '.') break;
 
          if ((command[0] > '0' - 1) && (command[0] < '9' + 1))
@@ -148,15 +159,15 @@ int main(int argc, char *argv[])
             if (command[0] == '0') y = sscanf(command, "%llx %[^\r\n]", &cursor, mask);
             else                   y = sscanf(command, "%lld %[^\r\n]", &cursor, mask);
 
-            x = lseek(f, cursor, SEEK_SET);
+            seek_point = lseek(f, (off_t) cursor, SEEK_SET);
 
-            if (x < 0)
+            if (seek_point < 0)
             {
                printf("position not taken\n");
                break;
             }
 
-            if (y > 1)
+            if (y > 1) 
             {
                y = strlen(mask);
                if (y > 16) y = 16;
@@ -178,9 +189,8 @@ int main(int argc, char *argv[])
 
                cursor = lseek(f, (off_t) 0, SEEK_CUR);
                cursor -= y;
-               x = lseek(f, cursor, SEEK_SET);
+               seek_point = lseek(f, (off_t) cursor, SEEK_SET);
                
-
                if (x < 0) break;
             }
          }
@@ -207,8 +217,7 @@ int main(int argc, char *argv[])
 
             cursor = lseek(f, (off_t) 0, SEEK_CUR);
             cursor -= y;
-            x = lseek(f, cursor, SEEK_SET);
-
+            seek_point = lseek(f, cursor, SEEK_SET);
 
             if (x < 0) break;
          }

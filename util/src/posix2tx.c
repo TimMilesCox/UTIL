@@ -23,12 +23,14 @@ int posix2s_offset(posix2s_block *b)
 int posix2s_point(int file, int offset, off_t position, posix2s_block *b)
 {
    int		 x;
+   off_t	 new_position;
+
 
    if (position ^ b->position)
    {
-      x = lseek(file, position, SEEK_SET);
+      new_position = lseek(file, position, SEEK_SET);
 
-      if (x < 0)
+      if (new_position < 0)
       {
          printf("%d %lld %d seek error\n", file, position, errno);
          return -1;
@@ -90,6 +92,18 @@ int posix2textline(int file, char *buffer, int maximum, int compress, posix2s_bl
    }
 
    b->rcursor = y;
+
+   #ifdef FORCE_FINAL_LF
+   if (last_read < 0)
+   {
+   }
+   else if ((final_count) && (last_read ^ '\n'))
+   {
+      final_count--;
+      *buffer++ '\n';
+   } 
+   #endif
+
    *buffer = 0;
    return maximum - final_count;
 }

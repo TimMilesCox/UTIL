@@ -157,7 +157,6 @@ static int realign(int f1, int f2,
 
             if (x == 0) break;
 
-            if (uflag['W'-'A'] == 0) break;
             if (text2[0] == '\n') continue;
             if ((text2[1] == '\n') && (text2[0] == ' ')) continue;
             break;
@@ -209,7 +208,6 @@ static int realign(int f1, int f2,
 
          if (x == 0) break;
 
-         if (uflag['W'-'A'] == 0) break;
          if (text1[0] == '\n') continue;
          if ((text1[1] == '\n') && (text1[0] == ' ')) continue;
          break;
@@ -242,9 +240,19 @@ static int realign(int f1, int f2,
 
    while (traverse--)
    {
-      line2++;
-      x = posix2textline(f2, text2, LINE-1, uflag['W'-'A'], b2);
-      printf("            %s: %d: %s", right, line2++, text2);
+      for (;;)
+      {
+         line2++;
+         x = posix2textline(f2, text2, LINE-1, uflag['W'-'A'], b2);
+         if (x == 0) break;
+
+         if (text2[0] == '\n') continue;
+         if ((text2[1] == '\n') && (text2[0] == ' ')) continue;
+         break;
+      }
+
+      if (x == 0) break;
+      printf("            %s: %d: %s", right, line2, text2);
    }
 
    return -1;
@@ -301,20 +309,19 @@ static int text_compare(int f1, int f2)
          break;
       }
 
-      if (x ^ y)
-      {
-         if (x == 0) printf("%s contains more lines than %s\n", right, left);
-         if (y == 0) printf("%s contains more lines than %s\n", left, right);
-         status |= 1;
-      }
+      status |= (x ^ y);
 
       if (j = strcmp(text1, text2))
       {
          status |= j;
+
          if (flag['v'-'a'])
+
          {
-            printf("          * %s: %d: %s", right, line2, text2);
-            printf("difference* %s: %d: %s",  left, line1, text1);
+            if      (y) printf("          * %s: %d: %s", right, line2, text2);
+            else if (x) printf("       eof* %s\n", right);
+            if      (x) printf("difference* %s: %d: %s",  left, line1, text1);
+            else if (y) printf("       eof* %s\n",  left);
          }
 
          if (!uflag['V'-'A']) break;
@@ -411,6 +418,7 @@ static void file_compare()
    if (f2 < 0)
    {
       printf("%s not available or not a data file\n", right);
+      close(f1);
       return;
    }
 
