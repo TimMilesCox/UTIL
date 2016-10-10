@@ -1,0 +1,2 @@
+gcc -m32 -funsigned-char -D_FILE_OFFSET_BITS=64 -o ../ubuntu.x86/seeif ../ubuntu86.rel/argue.o ../ubuntu86.rel/posix2tx.o seeif.c
+

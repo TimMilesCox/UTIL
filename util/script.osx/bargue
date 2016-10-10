@@ -1,0 +1,9 @@
+if	[ "$1" == "powerpc" ]
+then
+echo	build argue for OSX powerpc
+gcc -m32 -funsigned-char -c  -o ../osx_ppc.rel/argue.o argue.c
+else
+echo	build argue for OSX x86
+gcc -m32 -funsigned-char -c  -o ../osx_x86.rel/argue.o argue.c
+fi
+

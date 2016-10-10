@@ -1,0 +1,2 @@
+gcc -m32 -funsigned-char -D_FILE_OFFSET_BITS=64 -o ../ubuntu.x86/fds ../ubuntu86.rel/argue.o fds.c
+

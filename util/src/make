@@ -1,0 +1,29 @@
+if	[ "$2" == "linux" ]
+then
+echo	build for linux $1
+../ubscript.x86/bargue	$1
+../ubscript.x86/bposix2	$1
+../ubscript.x86/bseeif	$1
+../ubscript.x86/bufds	$1
+../ubscript.x86/build	usea	$1
+../ubscript.x86/build	data	$1
+../ubscript.x86/build	csum	$1
+../ubscript.x86/build	flo	$1
+../ubscript.x86/build	chalx	$1
+../ubscript.x86/build	stripcr	$1
+../ubscript.x86/build	stuffcr	$1
+else
+echo	build for OSX $1
+../script.osx/bargue	$1
+../script.osx/bposix2	$1
+../script.osx/bseeif	$1
+../script.osx/bufds	$1
+../script.osx/build	usea	$1
+../script.osx/build	data	$1
+../script.osx/build	csum	$1
+../script.osx/build	flo	$1
+../script.osx/build	chalx	$1
+../script.osx/build	stripcr	$1
+../script.osx/build	stuffcr	$1
+fi
+

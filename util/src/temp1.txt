@@ -1,0 +1,12 @@
+echo	build for Win32
+..\script.osx\bargue	%1
+..\script.osx\bposix2	%1
+..\script.osx\bseeif	%1
+..\script.osx\bufds	%1
+..\script.osx\build	usea	%1
+..\script.osx\build	data	%1
+..\script.osx\build	csum	%1
+..\script.osx\build	flo	%1
+..\script.osx\build	chalx	%1
+..\script.osx\build	stripcr	%1
+..\script.osx\build	stuffcr	%1

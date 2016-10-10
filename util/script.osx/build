@@ -1,0 +1,9 @@
+if	[ "$2" == "powerpc" ]
+then
+echo	build $1 for OSX powerpc
+gcc -m32 -funsigned-char -o ../osx.ppc/$1 $1.c
+else
+echo	build $1 for OSX x86
+gcc -m32 -funsigned-char -o ../osx.x86/$1 $1.c
+fi
+

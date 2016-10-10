@@ -1,0 +1,2 @@
+gcc -m32 -funsigned-char -c -D_FILE_OFFSET_BITS=64 -o ../ubuntu86.rel/posix2tx.o posix2tx.c
+

@@ -1,0 +1,9 @@
+if	[ "$1" == "powerpc" ]
+then
+echo	build fds for OSX powerpc
+gcc -m32 -funsigned-char -D_FILE_OFFSET_BITS=64 -o ../osx.ppc/fds ../osx_ppc.rel/argue.o fds.c
+else
+echo	build fds for OSX x86
+gcc -m32 -funsigned-char -D_FILE_OFFSET_BITS=64 -o ../osx.x86/fds ../osx_x86.rel/argue.o fds.c
+fi
+

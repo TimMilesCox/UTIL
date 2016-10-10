@@ -1,0 +1,2 @@
+gcc -m32 -funsigned-char -o ../ubuntu.x86/$1 $1.c
+

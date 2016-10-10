@@ -1,0 +1,2 @@
+gcc -m32 -funsigned-char -c -o ../ubuntu86.rel/argue.o argue.c
+
