@@ -68,7 +68,7 @@
 static int               names;
 static char		 flag[28];
 static int		 files;
-static char		*name[15];
+static char		*name[384];
 
 #define	DATA	8192
 
@@ -82,7 +82,11 @@ int upper(int y)
 
 int main(int argc, char *_argv[])
 {
-   int			 x = 0, y, symbol, line, touches, mask;
+   int			 x = 0, y, symbol, line, mask_words, mask_sum, scale;
+
+   int			 touches[384/32],
+			 mask[384/32];
+
    char			*p, *q, *r, *s;
 
    char			 filename[1600];
@@ -108,17 +112,34 @@ int main(int argc, char *_argv[])
       }
       else
       {
-         name[names++] = p;
-
-         if (flag['z' - 'a'] == 0)
+         if (names < 384)
          {
-            if ((files == 0) || (flag['x' - 'a'] == 1)) files++;
+            name[names++] = p;
+
+            if (flag['z' - 'a'] == 0)
+            {
+               if ((files == 0) || (flag['x' - 'a'] == 1))
+               {
+                  if (files < 31) files++;
+                  else
+                  {
+                     printf("only 31 file names may be commanded\n"
+                            "for more files than that pipe their names to stdin\n");
+                     return 0;
+                  }
+               }
+            }
          }
+         else printf("only 384 search strings and file names may be commanded\n");
       }
    }
 
    x = 0;
-   mask = ((1 << names) - 1) ^ ((1 << files) - 1);
+   y = names >> 5;
+   mask_words = y + 1;
+   mask[y] = ((1 << (names & 31)) - 1);
+   while (y--) mask[y] = 0xFFFFFFFF;
+   mask[0] ^= ((1 << files) - 1);
 
    if (flag['v' - 'a']) printf("%d files named on command line\n", files);
 
@@ -140,6 +161,8 @@ int main(int argc, char *_argv[])
       }
 
       f = fopen(p, "r");
+      y = mask_words;
+      while (y--) touches[y] = 0;
 
       if (f)
       {
@@ -151,7 +174,12 @@ int main(int argc, char *_argv[])
             q = fgets(data, DATA - 1, f);
             if (!q) break;
             line++;
-            touches = 0;
+
+            if (flag['f'-'a'] == 0)
+            {
+               y = mask_words;
+               while (y--) touches[y] = 0;
+            }
 
             while (*q)
             {
@@ -176,16 +204,55 @@ int main(int argc, char *_argv[])
 
                   if (!symbol)
                   {
-                     if (flag['a'-'a']) touches |= 1 << y;
-                     else               touches = mask;
+                     if (flag['a'-'a']) touches[y >> 5] |= 1 << (y & 31);
+                     else
+                     {
+                        y = mask_words;
+                        while (y--) touches[y] = mask[y];
+                        break;
+                     }
                   }
                }
                q++;
             }
 
-            if (touches == mask) printf("%s:%d %s\n", p, line, data);
+            mask_sum = 0;
+            y = mask_words;
+            while (y--) mask_sum |= mask[y] ^ touches[y];
+
+            if (mask_sum == 0)
+            {
+               if (flag['f'-'a'])
+               {
+                  printf("requested strings are in %s\n", p);
+                  break;
+               }
+
+               printf("%s:%d %s\n", p, line, data);
+            }
          }
          if (flag['v'-'a']) printf("close %s lines %d\n", p, line);
+
+         if (flag['n'-'a'] & flag['f'-'a'])
+         {
+            if (mask_sum)
+            {
+               y = mask_words;
+               printf("\nstrings not found in %s\n", p);
+
+               while (y--)
+               {
+                  mask_sum = mask[y] ^ touches[y];
+                  scale = 32;
+
+                  while(scale--)
+                  {
+                     if ((mask_sum >> scale) & 1) printf(" %s\n", name[y * 32 + scale]);
+                  }
+               }
+            }
+         }
+
          fclose(f);
       }
       else
